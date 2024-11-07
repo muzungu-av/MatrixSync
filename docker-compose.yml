@@ -1,0 +1,42 @@
+services:
+  back-api:
+    image: back-api-img
+    container_name: "back-api"
+    restart: unless-stopped
+    env_file:
+      - ./backend/.env.development
+    ports:
+      - 8080:8080
+    build:
+      context: .
+      dockerfile: ./backend/Dockerfile
+    environment:
+      - NODE_ENV=development
+    volumes:
+      - ./backend-api/logs:/app/logs
+    networks:
+      pic_network:
+        ipv4_address: 172.18.0.111
+
+  front:
+    image: front-img
+    container_name: "front"
+    restart: unless-stopped
+    depends_on:
+      - back-api
+    ports:
+      - 80:8080
+    build:
+      context: .
+      dockerfile: ./frontend/Dockerfile
+    networks:
+      pic_network:
+        ipv4_address: 172.18.0.112
+
+networks:
+  pic_network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.18.0.0/24
+          gateway: 172.18.0.1
